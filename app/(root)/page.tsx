@@ -28,7 +28,7 @@ const Page = () => {
     <section className="flex flex-col  gap-6 -mt-55">
         <h2>Your Interviews</h2>
         <div className="interviews-section">
-          <p >You haven&apos;t taken any interviews yet</p>
+          <p>You haven&apos;t taken any interviews yet</p>
         </div>
   
     </section>
