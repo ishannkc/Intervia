@@ -16,22 +16,17 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "fire
 import { auth } from "@/firebase/client"
 import { signIn, signUp } from "@/lib/actions/auth.action"
 
-const signUpSchema = z
-  .object({
-    name: z.string().min(3),
-    email: z.string().email({ message: "Invalid email" }),
-    password: z.string().min(8, "Password must be 8 or more characters"),
-    confirmPassword: z.string().min(8),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Password don't match",
-    path: ["confirmPassword"],
-  })
+const signUpSchema = z.object({
+  name: z.string().min(3, { message: "Name must have 3 or more characters" }),
+  email: z.string().email({ message: "Invalid Email format" }),
+  password: z.string().min(8, { message: "Password must have 8 or more characters" }).refine((val) => !/\s/.test(val), { message: "Password must not contain spaces" }),
+  confirmPassword: z.string().min(8, { message: "Password must have 8 or more characters" }),
+})
 
 const signInSchema = z.object({
   name: z.string().optional(),
-  email: z.string().email({ message: "Invalid email" }),
-  password: z.string().min(8),
+  email: z.string().email({ message: "Invalid Email format" }),
+  password: z.string().min(8, { message: "Password must have 8 or more characters" }).refine((val) => !/\s/.test(val), { message: "Password must not contain spaces" }),
 })
 
 const AuthForm = ({ type }: { type: FormType }) => {
@@ -46,53 +41,66 @@ const AuthForm = ({ type }: { type: FormType }) => {
       name: "",
       email: "",
       password: "",
-      confirmPassword: "", 
-    } as any, // Cast to any to prevent TS from complaining in sign-in
+      confirmPassword: "",
+    } as any,
   })
 
-   async function onSubmit(values: z.infer<typeof formSchema>) {
-    try{
-        if(type === 'sign-up'){
-          const{ name, email, password} = values;
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      if (type === 'sign-up') {
+        const { name, email, password, confirmPassword } = values as z.infer<typeof signUpSchema>
 
-          const userCredentials = await createUserWithEmailAndPassword(auth, email, password);
-
-            const result = await signUp({
-              uid: userCredentials.user.uid,
-              name: name!,
-              email,
-              password,
-            })
-
-            if(!result?.success){
-              toast.error(result?.message);
-              return;
-            }
-
-            toast.success('Account created successfully. Please Sign In!')
-            router.push('/sign-in') //redirecting/pushing to the sign-in page
-        } else {
-
-          const {email, password} = values;
-
-          const userCredential = await signInWithEmailAndPassword(auth, email, password);
-
-          const idToken = await userCredential.user.getIdToken();
-            if(!idToken){
-              toast.error('Sign in Failed')
-              return;
-            }
-            await signIn({
-              email, idToken
-            })
-
-
-            toast.success('Sign In successfully!')
-            router.push('/') //redirecting to the homepage
+        if (password !== confirmPassword) {
+          toast.error("Passwords do not match")
+          return
         }
-    } catch(error){
-        console.log(error);
-        toast.error('There was an error: ${error}')
+
+        const userCredentials = await createUserWithEmailAndPassword(auth, email, password)
+
+        const result = await signUp({
+          uid: userCredentials.user.uid,
+          name: name!,
+          email,
+          password,
+        })
+
+        if (!result?.success) {
+          toast.error(result?.message)
+          return
+        }
+
+        toast.success('Account created successfully!')
+        router.push('/sign-in')
+      } else {
+        const { email, password } = values
+
+        const userCredential = await signInWithEmailAndPassword(auth, email, password)
+
+        const idToken = await userCredential.user.getIdToken()
+        if (!idToken) {
+          toast.error('Sign in Failed')
+          return
+        }
+
+        await signIn({ email, idToken })
+
+        toast.success('Logged In successfully!')
+        router.push('/')
+      }
+    } catch (error: any) {
+      const errorMessage = error?.message?.toLowerCase() || ""
+
+      if (errorMessage.includes("auth/email-already-in-use")) {
+        toast.error("Email already in Use")
+      } else if (errorMessage.includes("auth/invalid-email")) {
+        toast.error("Invalid Email format")
+      } else if (errorMessage.includes("auth/user-not-found")) {
+        toast.error("Create an account to Sign in")
+      } else if (errorMessage.includes("auth/invalid-credential") || errorMessage.includes("auth/wrong-password")) {
+        toast.error("Invalid email or password")
+      } else {
+        toast.error(`There was an error: ${error.message}`)
+      }
     }
   }
 
@@ -100,10 +108,10 @@ const AuthForm = ({ type }: { type: FormType }) => {
     <div className="card-border lg:min-w-[566px]">
       <div className="flex flex-col gap-6 card py-14 px-10">
         <div className="flex flex-row gap-2 justify-center">
-          <Image 
-            src="/logo.png" 
-            alt="logo" 
-            height={32} 
+          <Image
+            src="/logo.png"
+            alt="logo"
+            height={32}
             width={38} />
           <h2 className="text-primary-100">Intervia</h2>
         </div>
