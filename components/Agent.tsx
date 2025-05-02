@@ -1,3 +1,4 @@
+import { cn } from '@/lib/utils';
 import Image from 'next/image'
 
 enum CallStatus{
@@ -8,7 +9,14 @@ enum CallStatus{
 }
 
 const Agent = ({userName}: AgentProps) => {
+    const callStatus = CallStatus.FINISHED;
     const isSpeaking = true;
+    //eg
+    const messages = [
+        'What is your name?',
+        'I am Ishan, nice to meet you!'
+    ];
+    const lastMessage = messages[messages.length - 1];
 
   return (
     <>
@@ -27,14 +35,30 @@ const Agent = ({userName}: AgentProps) => {
             </div>
         </div>
     </div>
+    {/* enables transcript of the conversation */}
+        {messages.length > 0 && (
+            <div className  = "transcript-border">
+                <div className  = "transcript">
+                    <p key = {lastMessage} className={cn('transition-opacity duration-500 opacity-0', 'animate-fadeIn opacity-100')}>
+                        {lastMessage}
+                    </p>
+
+                </div>
+
+            </div>
+        )}
+
         <div className = "w-full flex justify-center">
-                { CallStatus !== 'ACTIVE' ? (
-                    <button>
+                { callStatus !== 'ACTIVE' ? (
+                    <button className="relative btn-call">
+                        <span 
+                                 className = {cn('absolute animate-ping rounded-full opacity-75', callStatus !== 'CONNECTING' & 'hidden' )}
+                             />
                         <span>
-                            {CallStatus === 'INACTIVE' || CallStatus === 'FINISHED' ? 'Call' : '...'}
+                        {callStatus === 'INACTIVE' || callStatus === 'FINISHED' ? 'Call' : '. . .'}
                         </span>
                     </button>
-                ): (
+                ) : (
                     <button className = "btn-disconnect">
                         End
                     </button>
