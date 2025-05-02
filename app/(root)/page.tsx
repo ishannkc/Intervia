@@ -8,13 +8,6 @@ import InterviewCard from '@/components/InterviewCard'
 const Page = () => {
   return (
     <>
-
-      {/* <header className = "w-full flex justify-end p-4 absolute top-0 right-0">
-        <Link href = "/sign-in" className="mr-4 mt-4 text-sm font-medium hover:text-gray-500 transition-colors">
-            Log Out
-        </Link> 
-      </header> */}
-
     <section className="w-full min-h-screen flex items-center justify-center px-6 -mt-55">
       <div className="max-w-4xl w-full flex items-center justify-between flex-wrap rounded-2xl bg-[#0c0c14] px-10 py-12 gap-10 shadow-lg">
         
