@@ -4,8 +4,20 @@ import Link from 'next/link'
 
 import { exampleInterviews } from '@/constants'
 import InterviewCard from '@/components/InterviewCard'
+import { getCurrentUser, getInterviewByUserId, getLatestInterviews } from '@/lib/actions/auth.action'
 
-const Page = () => {
+const Page = async () => {
+  const user = await getCurrentUser();
+
+      //promise allows to fetch the user and latest interviews in parallel
+  const[ userInterviews, latestInterviews] = await Promise.all([
+    await getInterviewByUserId(user?.id!),
+    await getLatestInterviews({ userId: user?.id!})
+  ])
+
+  const hasPastInterviews = userInterviews?.length > 0;
+  const hasUpcomingInterviews = latestInterviews?.length > 0;
+
   return (
     <>
     <section className="w-full min-h-screen flex items-center justify-center px-6 -mt-55">
@@ -30,19 +42,26 @@ const Page = () => {
     <section className="flex flex-col  gap-6 -mt-55">
         <h2>Your Interviews</h2>
         <div className="interviews-section">
-          {exampleInterviews.map((interview) =>(
-            <InterviewCard { ... interview} key = {interview.id} />
-          ))}    
-          {/* <p>You haven't taken any interviews yet</p> */}   
+          {
+            hasPastInterviews ? (
+              userInterviews?.map((interview) => (
+                <InterviewCard { ...interview} key = {interview.id}/>
+              ))) : (
+                <p>You have not taken any interviews yet</p> 
+              )}  
         </div>
     </section>
 
     <section className="flex flex-col gap-6 mt-8">
       <h2>Take an Interview</h2>
       <div className = "interviews-section">
-      {exampleInterviews.map((interview) =>(
-            <InterviewCard { ... interview} key = {interview.id} />
-          ))}      
+      {
+            hasUpcomingInterviews ? (
+              latestInterviews?.map((interview) => (
+                <InterviewCard { ...interview} key = {interview.id}/>
+              ))) : (
+                <p>There are no new interviews available yet</p> 
+              )}      
       </div>
     </section>
 
