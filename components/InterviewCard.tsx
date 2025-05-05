@@ -2,10 +2,13 @@ import dayjs from 'dayjs'; //for date
 import Image from 'next/image';
 import { Button } from './ui/button';
 import Link from 'next/link';
+import { getFeedbackByInterviewId } from '@/lib/actions/general.action';
 
 
-const InterviewCard = ({ id, userId, role, type, techstack, createdAt}: InterviewCardProps ) => {
-    const feedback = null as Feedback | null; //feedbacks initially set to null
+const InterviewCard = async({ id, userId, role, type, techstack, createdAt}: InterviewCardProps ) => {
+    const feedback = userId && id 
+        ? await getFeedbackByInterviewId({interviewId:id, userId})
+        : null;
     const normalizedType = /mix/gi.test(type) ? 'Mixed' : type; //for non-tehncial says mix
     const formattedDate = dayjs(feedback?.createdAt || createdAt || Date.now()).format('MMM D, YYYY')
   return (
