@@ -99,24 +99,24 @@ system:
     }
   }
 
-
-  export async function getFeedbackByInterviewId(params: GetFeedbackByInterviewIdParams): Promise<Feedback | null>{
+  export async function getFeedbackByInterviewId(params: GetFeedbackByInterviewIdParams): Promise<Feedback | null> {
     const { interviewId, userId } = params;
   
-    //fetching feedback from the database
-    const interviews = await db
-        .collection('feedback')
-        .where('interviewId', '==', interviewId)
-        .where('userId', '==', userId)
-        .limit(1)
-        .get();
-
-        if(feedback.empty) return null;
-
-        const feedbackDoc = feedback.docs[0];
-        return{
-          id: feedbackDoc.id, ... feedbackDoc.data()
-        } as Feedback;
+    // Fetching feedback from the database
+    const feedbackSnapshot = await db
+      .collection('feedback')
+      .where('interviewId', '==', interviewId)
+      .where('userId', '==', userId)
+      .limit(1)
+      .get();
   
-
+    if (feedbackSnapshot.empty) return null;
+  
+    const feedbackDoc = feedbackSnapshot.docs[0];
+  
+    return {
+      id: feedbackDoc.id,
+      ...feedbackDoc.data(),
+    } as Feedback;
   }
+  
