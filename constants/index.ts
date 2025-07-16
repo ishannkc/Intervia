@@ -1,4 +1,4 @@
-import { CreateAssistantDTO } from "@vapi-ai/web/dist/api";
+import { CreateAssistantDTO, CreateWorkflowDTO } from "@vapi-ai/web/dist/api";
 import { z } from "zod";
 
 export const mappings = {
@@ -97,6 +97,175 @@ export const mappings = {
   "aws amplify": "amplify",
 };
 
+export const generator: CreateWorkflowDTO = 
+{
+  "name": "intervia_workflow",
+  "nodes": [
+    {
+      "name": "start_node",
+      "type": "start",
+      "metadata": {
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    },
+    {
+      "name": "say",
+      "type": "say",
+      "metadata": {
+        "position": {
+          "x": -513.3330385895275,
+          "y": 135.06673890394853
+        }
+      },
+      "prompt": "",
+      "exact": "Hello! I'll be asking you a few questions and generate a proper interview for you. \nAre you ready?"
+    },
+    {
+      "name": "node_1746252480682",
+      "type": "gather",
+      "metadata": {
+        "position": {
+          "x": -66.99601198402942,
+          "y": 164.8496916726962
+        }
+      },
+      "output": {
+        "type": "object",
+        "required": [
+          "role",
+          "type",
+          "level",
+          "techstack",
+          "amount"
+        ],
+        "properties": {
+          "role": {
+            "type": "string",
+            "description": "What role are you interested in?\n"
+          },
+          "type": {
+            "type": "string",
+            "description": "Do you want a technical, behavioral or a mixed interview?"
+          },
+          "level": {
+            "type": "string",
+            "description": "The job experience level"
+          },
+          "amount": {
+            "type": "string",
+            "description": "How many questions would you like?"
+          },
+          "techstack": {
+            "type": "string",
+            "description": "A list of technologies to cover during the interview"
+          }
+        }
+      }
+    },
+    {
+      "name": "node_1746252947736",
+      "type": "apiRequest",
+      "metadata": {
+        "position": {
+          "x": -427.66060597889185,
+          "y": 442.26890150834595
+        }
+      },
+      "method": "POST",
+      "url": "https://intervia-xi.vercel.app/api/vapi/generate",
+      "headers": {
+        "type": "object",
+        "properties": {}
+      },
+      "body": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string",
+            "value": "{{ role }}",
+            "description": ""
+          },
+          "type": {
+            "type": "string",
+            "value": "{{ type }}",
+            "description": ""
+          },
+          "level": {
+            "type": "string",
+            "value": "{{ level }}",
+            "description": ""
+          },
+          "amount": {
+            "type": "string",
+            "value": "{{ amount }}",
+            "description": ""
+          },
+          "userid": {
+            "type": "string",
+            "value": "{{ userid }}",
+            "description": ""
+          },
+          "techstack": {
+            "type": "string",
+            "value": "{{ techstack }}",
+            "description": ""
+          }
+        }
+      },
+      "output": null,
+      "mode": "blocking"
+    },
+    {
+      "name": "node_1746253237200",
+      "type": "say",
+      "metadata": {
+        "position": {
+          "x": -23.5582031756404,
+          "y": 490.59958126505296
+        }
+      },
+      "prompt": "Say that the interview has been generated and thank the user for the call and say best of luck for the interview",
+      "exact": ""
+    },
+    {
+      "name": "node_1746253338761",
+      "type": "hangup",
+      "metadata": {
+        "position": {
+          "x": -183.13130611906956,
+          "y": 878.8222830436877
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "start_node",
+      "to": "say"
+    },
+    {
+      "from": "say",
+      "to": "node_1746252480682"
+    },
+    {
+      "from": "node_1746252480682",
+      "to": "node_1746252947736"
+    },
+    {
+      "from": "node_1746252947736",
+      "to": "node_1746253237200"
+    },
+    {
+      "from": "node_1746253237200",
+      "to": "node_1746253338761"
+    }
+  ],
+  
+}
+
 export const interviewer: CreateAssistantDTO = {
   name: "Interviewer",
   firstMessage:
@@ -107,13 +276,13 @@ export const interviewer: CreateAssistantDTO = {
     language: "en",
   },
   voice: {
-    provider: "vapi",
-    voiceId: "Cole",
-    // stability: 0.4,
-    // similarityBoost: 0.8,
+    provider: "11labs",
+    voiceId: "sarah",
+    stability: 0.4,
+    similarityBoost: 0.8,
     speed: 0.9,
-    // style: 0.5,
-    // useSpeakerBoost: true,
+    style: 0.5,
+    useSpeakerBoost: true,
   },
   model: {
     provider: "openai",
@@ -149,11 +318,13 @@ End the conversation on a polite and positive note.
 
 - Be sure to be professional and polite.
 - Keep all your responses short and simple. Use official language, but be kind and welcoming.
-- Make sure the questions being asked are also short and simple.
 - This is a voice conversation, so keep your responses short, like in a real conversation. Don't ramble for too long.`,
       },
     ],
   },
+
+  clientMessages: [],  
+  serverMessages: [], 
 };
 
 export const feedbackSchema = z.object({
@@ -190,4 +361,42 @@ export const feedbackSchema = z.object({
   finalAssessment: z.string(),
 });
 
+export const interviewCovers = [
+  "/adobe.png",
+  "/amazon.png",
+  "/facebook.png",
+  "/hostinger.png",
+  "/pinterest.png",
+  "/quora.png",
+  "/reddit.png",
+  "/skype.png",
+  "/spotify.png",
+  "/telegram.png",
+  "/tiktok.png",
+  "/yahoo.png",
+];
 
+export const dummyInterviews: Interview[] = [
+  {
+    id: "1",
+    userId: "user1",
+    role: "Frontend Developer",
+    type: "Technical",
+    techstack: ["React", "TypeScript", "Next.js", "Tailwind CSS"],
+    level: "Junior",
+    questions: ["What is React?"],
+    finalized: false,
+    createdAt: "2024-03-15T10:00:00Z",
+  },
+  {
+    id: "2",
+    userId: "user1",
+    role: "Full Stack Developer",
+    type: "Mixed",
+    techstack: ["Node.js", "Express", "MongoDB", "React"],
+    level: "Senior",
+    questions: ["What is Node.js?"],
+    finalized: false,
+    createdAt: "2024-03-14T15:30:00Z",
+  },
+];
