@@ -28,10 +28,11 @@ const Page = async () => {
           </h2>
           <p className="text-lg text-gray-300 text-center">
             Practice on real interview questions & get instant feedback
+            
           </p>
           <div className="flex justify-center">
             <Button asChild className="btn-primary bg-violet-600 hover:bg-violet-700">
-              <Link href="/interview">Start an Interview</Link>
+              <Link href="/interview">Generate Interview</Link>
             </Button>
           </div>
         </div>
@@ -51,7 +52,7 @@ const Page = async () => {
           </div>
       </section> */}
 
-    <section className="flex flex-col gap-6 mt-8">
+    <section className="flex flex-col gap-6 -mt-50">
       <h2>Take an Interview</h2>
       <div className = "interviews-section">
       {

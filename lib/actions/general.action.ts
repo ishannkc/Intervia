@@ -62,6 +62,7 @@ export async function getInterviewById(id: string): Promise<Interview | null>{
             schema: feedbackSchema,
             prompt: `
         You are an AI interviewer analyzing a mock interview. Your task is to evaluate the candidate based on structured categories. Be thorough and detailed in your analysis. Don't be lenient with the candidate. If there are mistakes or areas for improvement, point them out.
+        Also, once the asked question is answered properly do not keep on revolving around the same question.
         Transcript:
         ${formattedTranscript}
 
@@ -73,7 +74,7 @@ export async function getInterviewById(id: string): Promise<Interview | null>{
         - **Confidence & Clarity**: Confidence in responses, engagement, and clarity.
         `,
 system:
-        "You are a professional interviewer analyzing a mock interview. Your task is to evaluate the candidate based on structured categories",
+        "You are a professional interviewer analyzing a mock interview. Your task is to evaluate the candidate based on structured categories. Also keep in context that if the user skips a question, then deduct the points to be rated accordingly of how many questions there are. If the user skips all the questions then, rating is automatically zero, if it skips a few then rate accordingly. The highest possible rating is 100 and the lowest is 0.",
         });
 
         const feedback = await db.collection('feedback').add({
