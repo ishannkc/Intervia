@@ -1,11 +1,9 @@
-
-
 import {initializeApp, getApp, getApps} from "firebase/app";
 import {getAuth} from 'firebase/auth'
 import { getFirestore} from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDOCea6ZKcg9cg0fPSjQDG26rw_GTWTKow",
+  apiKey: process.env.FIREBASE_WEB_API_KEY,
   authDomain: "intervia-1efd6.firebaseapp.com",
   projectId: "intervia-1efd6",
   storageBucket: "intervia-1efd6.firebasestorage.app",
