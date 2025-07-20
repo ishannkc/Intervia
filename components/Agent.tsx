@@ -41,7 +41,12 @@ const Agent = ({userName, userId, type, interviewId, questions }: AgentProps) =>
         const onSpeechStart = () => setIsSpeaking(true);
         const onSpeechEnd = () => setIsSpeaking(false);
 
-        const onError = (error: Error) => console.log('Error', error);
+        const onError = (error: Error) => {
+           //ignore meeting due to ejection(not critical)
+            if (!error.message?.includes('Meeting ended due to ejection')) {
+                console.log('Error', error);
+            }
+        };
 
         vapi.on('call-start', onCallStart);
         vapi.on('call-end', onCallEnd);
