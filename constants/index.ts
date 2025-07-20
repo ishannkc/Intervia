@@ -257,11 +257,8 @@ export const generator: CreateWorkflowDTO =
     {
       "from": "node_1746252947736",
       "to": "node_1746253237200"
-    },
-    {
-      "from": "node_1746253237200",
-      "to": "node_1746253338761"
     }
+   
   ],
   
 }
