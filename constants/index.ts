@@ -121,7 +121,7 @@ export const generator: CreateWorkflowDTO =
         }
       },
       "prompt": "",
-      "exact": "Hello! I'll be asking you a few questions and generate a proper interview for you. \nAre you ready?"
+      "exact": "Hello! I'll be asking you a few questions and generate a proper interview for you! Let's get started"
     },
     {
       "name": "node_1746252480682",
