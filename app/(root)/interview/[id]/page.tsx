@@ -12,24 +12,28 @@ const Page = async( {params}: RouteParams) => {
     if(!interview) redirect('/')
 
   return (
-    <>
-        <div className = "flex flex-row gap-4 justify-between">
-            <div className = "flex flex-row gap-4 items-center max-sm:flex-col">
-                <div className="flex flex-row gap-4 items-center">
-                    <h3 className = "capitalize">{interview.role} Interview</h3>
-                </div>
-                {/* <DisplayTechIcons techStack = {interview.techstack}/> */}
-            </div>
-            <p className = "bg-dark-200 px-4 py-2 rounded-lg h-fit capitalize">{interview.type}</p>
+    <div className="space-y-8">
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <h2 className="text-3xl font-bold capitalize">{interview.role} Interview</h2>
+            <span className="bg-dark-200 px-4 py-2 rounded-lg text-sm font-medium capitalize w-fit">
+              {interview.type}
+            </span>
+          </div>
+          {/* <DisplayTechIcons techStack={interview.techstack} className="mt-1" /> */}
         </div>
+      </div>
+      <div className="mt-10">
         <Agent 
-                userName={user?.name || ''}
-                userId = {user?.id}
-                interviewId= {id}
-                type  = "interview"
-                questions={interview.questions}
-        />   
-    </>
+          userName={user?.name || ''}
+          userId={user?.id}
+          interviewId={id}
+          type="interview"
+          questions={interview.questions}
+        />
+      </div>
+    </div>
   )
 }
 

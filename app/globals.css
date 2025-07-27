@@ -238,7 +238,7 @@
   }
 
   .transcript-border {
-    @apply border-gradient p-0.5 rounded-2xl w-full;
+    @apply border-gradient p-0.5 rounded-2xl w-full mb-8;
 
     .transcript {
       @apply dark-gradient rounded-2xl  min-h-12 px-5 py-3 flex items-center justify-center;
