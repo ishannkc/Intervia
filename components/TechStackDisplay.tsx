@@ -33,7 +33,7 @@ const TechStackDisplay = ({
   if (displayItems.length === 0) return null;
 
   return (
-    <div className={cn("flex flex-wrap gap-2 mt-4", className)}>
+    <div className={cn("flex flex-wrap gap-2", className)}>
       {displayItems.map((tech, index) => (
         <span 
           key={`${tech}-${index}`}

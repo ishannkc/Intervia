@@ -33,14 +33,14 @@ interface InterviewCardProps {
 
 const formatLevelText = (text: string): string => {
   if (!text) return '';
-  // Convert to title case and ensure it ends with 'level'
+  
   const formatted = text
     .toLowerCase()
     .split(/[\s-]+/)
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
   
-  // Ensure it ends with 'level' (case insensitive)
+  // ends techstack with "level"
   const levelRegex = /\blevel\s*$/i;
   if (!levelRegex.test(formatted)) {
     return `${formatted} Level`;
@@ -54,10 +54,8 @@ const InterviewCard = ({ id, userId, role, type, level, techstack, createdAt, fe
     const formattedDate = dayjs(feedback?.createdAt || createdAt || Date.now()).format('MMM D, YYYY');
     const hasFeedback = !!feedback?.finalAssessment;
 
-    const cardHeightClass = hasFeedback ? 'min-h-[360px]' : 'min-h-[260px]';
-
     return (
-        <div className={`card-border w-[360px] max-sm:w-full ${cardHeightClass} transition-all duration-300`}>
+        <div className={`card-border w-[360px] m-sm:w-full ${hasFeedback ? 'h-auto' : 'max-h-96'}`}>
             <div className="card-interview h-full flex flex-col">
                 <div className="flex-1 flex flex-col">
                     <div className="absolute top-0 left-0 right-0 flex justify-between">
@@ -89,7 +87,7 @@ const InterviewCard = ({ id, userId, role, type, level, techstack, createdAt, fe
                     </div>
                     
                     {hasFeedback && (
-                        <div className="mt-3 flex-1">
+                        <div className="mt-3 flex-1 overflow-hidden">
                             <p className="line-clamp-4">{feedback.finalAssessment}</p>
                         </div>
                     )}
@@ -98,15 +96,17 @@ const InterviewCard = ({ id, userId, role, type, level, techstack, createdAt, fe
                             <p className="text-gray-500 text-center w-full">You haven't taken the interview yet!</p>
                         </div>
                     )}
-                    <div className="mt-4">
-                        <TechStackDisplay 
-                            techStack={techstack} 
-                            className={hasFeedback ? 'mt-4' : 'mt-2'} 
-                        />
-                    </div>
+                    {techstack && techstack.length > 0 && (
+                        <div className="mt-2">
+                            <TechStackDisplay 
+                                techStack={techstack} 
+                                className="" 
+                            />
+                        </div>
+                    )}
                 </div>
 
-                <div className={`flex flex-col gap-3 ${hasFeedback ? 'mt-4' : 'mt-2'}`}>
+                <div className="flex flex-col gap-2 mt-3">
                     {hasFeedback && (
                         <Button asChild className="btn-primary">
                             <Link href={`/interview/${id}/feedback`} className="w-full text-center">
