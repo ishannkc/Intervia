@@ -2,7 +2,7 @@ import dayjs from 'dayjs'; //for date
 import Image from 'next/image';
 import { Button } from './ui/button';
 import Link from 'next/link';
-import { getFeedbackByInterviewId } from '@/lib/actions/general.action';
+import TechStackDisplay from './TechStackDisplay';
 
 interface Feedback {
     id?: string;
@@ -25,25 +25,53 @@ interface InterviewCardProps {
     userId: string;
     role: string;
     type: string;
+    level?: string;
     techstack?: string[];
     createdAt?: Date | string;
     feedback?: Feedback | null;
 }
 
-const InterviewCard = ({ id, userId, role, type, techstack, createdAt, feedback }: InterviewCardProps ) => {
+const formatLevelText = (text: string): string => {
+  if (!text) return '';
+  // Convert to title case and ensure it ends with 'level'
+  const formatted = text
+    .toLowerCase()
+    .split(/[\s-]+/)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+  
+  // Ensure it ends with 'level' (case insensitive)
+  const levelRegex = /\blevel\s*$/i;
+  if (!levelRegex.test(formatted)) {
+    return `${formatted} Level`;
+  }
+  return formatted;
+};
+
+const InterviewCard = ({ id, userId, role, type, level, techstack, createdAt, feedback }: InterviewCardProps ) => {
     const normalizedType = /mix/gi.test(type) ? 'Mixed' : type;
+    const formattedLevel = level ? formatLevelText(level) : '';
     const formattedDate = dayjs(feedback?.createdAt || createdAt || Date.now()).format('MMM D, YYYY');
     const hasFeedback = !!feedback?.finalAssessment;
 
+    const cardHeightClass = hasFeedback ? 'min-h-[360px]' : 'min-h-[260px]';
+
     return (
-        <div className="card-border w-[360px] max-sm:w-full min-h-80">
-            <div className="card-interview">
-                <div>
-                    <div className="absolute top-0 right-0 w-fit px-4 py-2 rounded-bl-lg bg-light-600">
-                        <p className="badge-text">{normalizedType}</p>
+        <div className={`card-border w-[360px] max-sm:w-full ${cardHeightClass} transition-all duration-300`}>
+            <div className="card-interview h-full flex flex-col">
+                <div className="flex-1 flex flex-col">
+                    <div className="absolute top-0 left-0 right-0 flex justify-between">
+                        {formattedLevel && (
+                            <div className="px-4 py-2 rounded-br-lg bg-light-600">
+                                <p className="badge-text">{formattedLevel}</p>
+                            </div>
+                        )}
+                        <div className="px-4 py-2 rounded-bl-lg bg-light-600">
+                            <p className="badge-text">{normalizedType}</p>
+                        </div>
                     </div>
                     
-                    <h3 className="mt-5 capitalize">
+                    <h3 className="mt-8 capitalize">
                         {role} Interview
                     </h3>
 
@@ -60,16 +88,25 @@ const InterviewCard = ({ id, userId, role, type, techstack, createdAt, feedback 
                         )}
                     </div>
                     
-                    <div className="mt-5 min-h-[3rem]">
-                        {hasFeedback ? (
-                            <p className="line-clamp-2">{feedback.finalAssessment}</p>
-                        ) : (
-                            <p className="text-gray-500">You haven't taken the interview yet!</p>
-                        )}
+                    {hasFeedback && (
+                        <div className="mt-3 flex-1">
+                            <p className="line-clamp-4">{feedback.finalAssessment}</p>
+                        </div>
+                    )}
+                    {!hasFeedback && (
+                        <div className="flex-1 flex items-center">
+                            <p className="text-gray-500 text-center w-full">You haven't taken the interview yet!</p>
+                        </div>
+                    )}
+                    <div className="mt-4">
+                        <TechStackDisplay 
+                            techStack={techstack} 
+                            className={hasFeedback ? 'mt-4' : 'mt-2'} 
+                        />
                     </div>
                 </div>
 
-                <div className="flex flex-col gap-3">
+                <div className={`flex flex-col gap-3 ${hasFeedback ? 'mt-4' : 'mt-2'}`}>
                     {hasFeedback && (
                         <Button asChild className="btn-primary">
                             <Link href={`/interview/${id}/feedback`} className="w-full text-center">
