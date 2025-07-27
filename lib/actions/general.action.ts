@@ -103,21 +103,25 @@ system:
   export async function getFeedbackByInterviewId(params: GetFeedbackByInterviewIdParams): Promise<Feedback | null> {
     const { interviewId, userId } = params;
   
-    // Fetching feedback from the database
+    // Fetching feedback from the database, ordered by createdAt in descending order to get the most recent feedback
     const feedbackSnapshot = await db
       .collection('feedback')
       .where('interviewId', '==', interviewId)
       .where('userId', '==', userId)
+      .orderBy('createdAt', 'desc')
       .limit(1)
       .get();
   
     if (feedbackSnapshot.empty) return null;
   
     const feedbackDoc = feedbackSnapshot.docs[0];
+    const feedbackData = feedbackDoc.data();
   
     return {
       id: feedbackDoc.id,
-      ...feedbackDoc.data(),
+      ...feedbackData,
+      // Ensure createdAt is properly formatted as a string
+      createdAt: feedbackData.createdAt?.toDate ? feedbackData.createdAt.toDate().toISOString() : feedbackData.createdAt
     } as Feedback;
   }
   
