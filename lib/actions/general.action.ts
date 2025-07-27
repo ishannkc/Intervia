@@ -4,7 +4,7 @@ import { feedbackSchema } from "@/constants";
 import { db } from "@/firebase/admin";
 import { generateObject } from "ai";
 import { google } from "@ai-sdk/google";
-import { nullable } from "zod";
+
 
 export async function getInterviewByUserId(userId: string): Promise<Interview[] | null>{
   const interviews = await db
