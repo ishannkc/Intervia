@@ -103,7 +103,7 @@ system:
   export async function getFeedbackByInterviewId(params: GetFeedbackByInterviewIdParams): Promise<Feedback | null> {
     const { interviewId, userId } = params;
   
-    // Fetching feedback from the database, ordered by createdAt in descending order to get the most recent feedback
+
     const feedbackSnapshot = await db
       .collection('feedback')
       .where('interviewId', '==', interviewId)
@@ -120,7 +120,7 @@ system:
     return {
       id: feedbackDoc.id,
       ...feedbackData,
-      // Ensure createdAt is properly formatted as a string
+  
       createdAt: feedbackData.createdAt?.toDate ? feedbackData.createdAt.toDate().toISOString() : feedbackData.createdAt
     } as Feedback;
   }
