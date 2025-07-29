@@ -22,10 +22,13 @@ const signUpSchema = z.object({
   email: z.string()
     .email({ message: "Invalid Email format" })
     .refine(email => {
-      const domain = email.split('@')[1];
+      const parts = email.split('@');
+      if (parts.length !== 2) return false;
+      const domain = parts[1];
+      if (!domain) return false;
       const validDomains = ['gmail.com', 'outlook.com', 'hotmail.com', 'yahoo.com'];
       return validDomains.some(validDomain => domain.endsWith(validDomain));
-    }, { message: "Email must be from a valid domain (e.g., gmail.com, outlook.com, hotmail.com, yahoo.com)" }),
+    }, { message: "Invalid Email Format" }),
   password: z.string().min(8, { message: "Password must have 8 or more characters" }).refine((val) => !/\s/.test(val), { message: "Password must not contain spaces" }),
   confirmPassword: z.string().min(8, { message: "Password must have 8 or more characters" }),
 })
@@ -35,10 +38,13 @@ const signInSchema = z.object({
   email: z.string()
     .email({ message: "Invalid Email format" })
     .refine(email => {
-      const domain = email.split('@')[1];
+      const parts = email.split('@');
+      if (parts.length !== 2) return false;
+      const domain = parts[1];
+      if (!domain) return false;
       const validDomains = ['gmail.com', 'outlook.com', 'hotmail.com', 'yahoo.com'];
       return validDomains.some(validDomain => domain.endsWith(validDomain));
-    }, { message: "Email must be from a valid domain (e.g., gmail.com, outlook.com, hotmail.com, yahoo.com)" }),
+    }, { message: "Invalid Email Format" }),
   password: z.string().min(8, { message: "Password must have 8 or more characters" }).refine((val) => !/\s/.test(val), { message: "Password must not contain spaces" }),
 })
 
