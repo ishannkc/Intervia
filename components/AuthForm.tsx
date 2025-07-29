@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
+import { useRef, useEffect } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
@@ -18,14 +19,26 @@ import { signIn, signUp } from "@/lib/actions/auth.action"
 
 const signUpSchema = z.object({
   name: z.string().min(3, { message: "Name must have 3 or more characters" }),
-  email: z.string().email({ message: "Invalid Email format" }),
+  email: z.string()
+    .email({ message: "Invalid Email format" })
+    .refine(email => {
+      const domain = email.split('@')[1];
+      const validDomains = ['gmail.com', 'outlook.com', 'hotmail.com', 'yahoo.com'];
+      return validDomains.some(validDomain => domain.endsWith(validDomain));
+    }, { message: "Email must be from a valid domain (e.g., gmail.com, outlook.com, hotmail.com, yahoo.com)" }),
   password: z.string().min(8, { message: "Password must have 8 or more characters" }).refine((val) => !/\s/.test(val), { message: "Password must not contain spaces" }),
   confirmPassword: z.string().min(8, { message: "Password must have 8 or more characters" }),
 })
 
 const signInSchema = z.object({
   name: z.string().optional(),
-  email: z.string().email({ message: "Invalid Email format" }),
+  email: z.string()
+    .email({ message: "Invalid Email format" })
+    .refine(email => {
+      const domain = email.split('@')[1];
+      const validDomains = ['gmail.com', 'outlook.com', 'hotmail.com', 'yahoo.com'];
+      return validDomains.some(validDomain => domain.endsWith(validDomain));
+    }, { message: "Email must be from a valid domain (e.g., gmail.com, outlook.com, hotmail.com, yahoo.com)" }),
   password: z.string().min(8, { message: "Password must have 8 or more characters" }).refine((val) => !/\s/.test(val), { message: "Password must not contain spaces" }),
 })
 
@@ -37,6 +50,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    mode: 'onChange',
     defaultValues: {
       name: "",
       email: "",
@@ -44,6 +58,34 @@ const AuthForm = ({ type }: { type: FormType }) => {
       confirmPassword: "",
     } as any,
   })
+
+  // Handle form validation changes
+  const { errors } = form.formState;
+  const prevErrorsRef = useRef(errors);
+
+  useEffect(() => {
+    // Check for new errors
+    Object.entries(errors).forEach(([field, error]) => {
+      if (error?.message && !prevErrorsRef.current[field as keyof typeof errors]?.message) {
+        let friendlyMessage = error.message;
+        
+        if (field === 'email') {
+          friendlyMessage = 'Invalid Email Format';
+        } else if (field === 'name') {
+          friendlyMessage = 'Name must be at least 3 characters';
+        } else if (field === 'password') {
+          friendlyMessage = 'Password must be at least 8 characters and contain no spaces';
+        } else if (field === 'confirmPassword') {
+          friendlyMessage = 'Passwords do not match';
+        }
+        
+        toast.error(friendlyMessage);
+      }
+    });
+    
+    // Update previous errors
+    prevErrorsRef.current = { ...errors };
+  }, [errors]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
