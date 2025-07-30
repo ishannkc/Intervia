@@ -1,5 +1,8 @@
 # Intervia - AI-Powered Interview Preparation Platform
 
+
+![intervia-homepage](https://github.com/user-attachments/assets/cc4a8cd0-5db6-4e9d-a033-c0bf90c573ff)
+
 Intervia is an advanced interview preparation platform that leverages AI to help users practice and improve their interview skills. Get real-time feedback, practice with AI-powered mock interviews, and track your progress to ace your next job interview.
 
 ## ✨ Features
