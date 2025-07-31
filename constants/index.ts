@@ -164,7 +164,7 @@ export const generator: CreateWorkflowDTO =
     }
    
   ],
-  
+
 }
 
 export const interviewer: CreateAssistantDTO = {

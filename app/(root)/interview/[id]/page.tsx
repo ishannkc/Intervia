@@ -2,7 +2,6 @@ import Agent from '@/components/Agent';
 import { getCurrentUser } from '@/lib/actions/auth.action';
 import { getInterviewById } from '@/lib/actions/general.action';
 import { redirect } from 'next/navigation';
-// import DisplayTechIcons from "@/components/DisplayTechIcons";
 
 const Page = async( {params}: RouteParams) => {
     const {id} = await params;
@@ -21,7 +20,6 @@ const Page = async( {params}: RouteParams) => {
               {interview.type}
             </span>
           </div>
-          {/* <DisplayTechIcons techStack={interview.techstack} className="mt-1" /> */}
         </div>
       </div>
       <div className="mt-10">
