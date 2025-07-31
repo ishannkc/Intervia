@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/firebase/client';
 import { Button } from './ui/button';
@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 
 export default function AuthButton() {
   const router = useRouter();
+  const pathname = usePathname();
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -39,8 +40,8 @@ export default function AuthButton() {
  
   if (isLoading) return null;
   
-  //if user is autheticated, then show log out
-  return isAuthenticated ? (
+  // Only show log out button on the homepage when authenticated
+  return isAuthenticated && pathname === '/' ? (
     <Button 
       variant="outline" 
       className="bg-black text-white hover:bg-gray-900 hover:text-white"
