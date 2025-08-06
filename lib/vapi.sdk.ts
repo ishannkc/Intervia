@@ -1,6 +1,5 @@
 import Vapi from '@vapi-ai/web';
 
-
 const originalConsoleError = console.error;
 
 console.error = (...args) => {
