@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import Link from 'next/link';
 import InterviewCard from '@/components/InterviewCard';
 import { getCurrentUser } from '@/lib/actions/auth.action';
-import { getInterviewByUserId, getLatestInterviews, getFeedbackByInterviewId } from "@/lib/actions/general.action";
+import { getInterviewByUserId, getFeedbackByInterviewId } from "@/lib/actions/general.action";
 
 
 interface Interview {
@@ -39,14 +39,11 @@ const Page = async () => {
   }
 
   
-  const [userInterviews = [], latestInterviews = []] = await Promise.all([
-    getInterviewByUserId(user.id) as Promise<Interview[]>,
-    getLatestInterviews({ userId: user.id }) as Promise<Interview[]>
-  ]);
+  const userInterviews = (await getInterviewByUserId(user.id)) as Interview[];
 
   //fetch feedback for each interview
   const interviewsWithFeedback = await Promise.all(
-    (latestInterviews || []).map(async (interview) => {
+    (userInterviews || []).map(async (interview) => {
       if (!interview?.id) return null;
       
       const feedback = await getFeedbackByInterviewId({
@@ -70,8 +67,7 @@ const Page = async () => {
     })
   ).then(interviews => interviews.filter(Boolean) as InterviewWithFeedback[]);
 
-  const hasPastInterviews = safeLength(userInterviews) > 0;
-  const hasUpcomingInterviews = safeLength(latestInterviews) > 0;
+  const hasUpcomingInterviews = safeLength(userInterviews) > 0;
 
   return (
     <>

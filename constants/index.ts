@@ -1,171 +1,107 @@
-import { CreateAssistantDTO, CreateWorkflowDTO } from "@vapi-ai/web/dist/api";
+import { CreateAssistantDTO } from "@vapi-ai/web/dist/api";
 import { z } from "zod";
 
-export const generator: CreateWorkflowDTO = 
-{
-  "name": "intervia_workflow",
-  "nodes": [
-    {
-      "name": "start_node",
-      "type": "start",
-      "metadata": {
-        "position": {
-          "x": 0,
-          "y": 0
-        }
-      }
-    },
-    {
-      "name": "say",
-      "type": "say",
-      "metadata": {
-        "position": {
-          "x": -513.3330385895275,
-          "y": 135.06673890394853
-        }
-      },
-      "prompt": "",
-      "exact": "Hello! I'll be asking you a few questions and generate a proper interview for you! Let's get started"
-    },
-    {
-      "name": "node_1746252480682",
-      "type": "gather",
-      "metadata": {
-        "position": {
-          "x": -66.99601198402942,
-          "y": 164.8496916726962
-        }
-      },
-      "output": {
-        "type": "object",
-        "required": [
-          "role",
-          "type",
-          "level",
-          "techstack",
-          "amount"
-        ],
-        "properties": {
-          "role": {
-            "type": "string",
-            "description": "What role are you interested in?\n"
-          },
-          "type": {
-            "type": "string",
-            "description": "Do you want a technical, behavioral or a mixed interview?"
-          },
-          "level": {
-            "type": "string",
-            "description": "The job experience level"
-          },
-          "amount": {
-            "type": "string",
-            "description": "How many questions would you like?"
-          },
-          "techstack": {
-            "type": "string",
-            "description": "A list of technologies to cover during the interview"
-          }
-        }
-      }
-    },
-    {
-      "name": "node_1746252947736",
-      "type": "apiRequest",
-      "metadata": {
-        "position": {
-          "x": -427.66060597889185,
-          "y": 442.26890150834595
-        }
-      },
-      "method": "POST",
-      "url": "https://intervia-xi.vercel.app/api/vapi/generate",
-      "headers": {
-        "type": "object",
-        "properties": {}
-      },
-      "body": {
-        "type": "object",
-        "properties": {
-          "role": {
-            "type": "string",
-            "value": "{{ role }}",
-            "description": ""
-          },
-          "type": {
-            "type": "string",
-            "value": "{{ type }}",
-            "description": ""
-          },
-          "level": {
-            "type": "string",
-            "value": "{{ level }}",
-            "description": ""
-          },
-          "amount": {
-            "type": "string",
-            "value": "{{ amount }}",
-            "description": ""
-          },
-          "userid": {
-            "type": "string",
-            "value": "{{ userid }}",
-            "description": ""
-          },
-          "techstack": {
-            "type": "string",
-            "value": "{{ techstack }}",
-            "description": ""
-          }
-        }
-      },
-      "output": null,
-      "mode": "blocking"
-    },
-    {
-      "name": "node_1746253237200",
-      "type": "say",
-      "metadata": {
-        "position": {
-          "x": -23.5582031756404,
-          "y": 490.59958126505296
-        }
-      },
-      "prompt": "Say that the interview has been generated and thank the user for the call and say best of luck for the interview",
-      "exact": ""
-    },
-    {
-      "name": "node_1746253338761",
-      "type": "hangup",
-      "metadata": {
-        "position": {
-          "x": -183.13130611906956,
-          "y": 878.8222830436877
-        }
-      }
-    }
-  ],
-  "edges": [
-    {
-      "from": "start_node",
-      "to": "say"
-    },
-    {
-      "from": "say",
-      "to": "node_1746252480682"
-    },
-    {
-      "from": "node_1746252480682",
-      "to": "node_1746252947736"
-    },
-    {
-      "from": "node_1746252947736",
-      "to": "node_1746253237200"
-    }
-   
-  ],
+const serverUrl = process.env.NEXT_PUBLIC_VAPI_SERVER_URL ?? "https://intervia-xi.vercel.app";
 
-}
+export const generatorAssistant: CreateAssistantDTO = {
+  name: "Intervia Generator",
+  firstMessage:
+    "Hello! I'll be asking you a few questions and generate a proper interview for you! Let's get started",
+  transcriber: {
+    provider: "deepgram",
+    model: "nova-2",
+    language: "en",
+  },
+  voice: {
+    provider: "11labs",
+    voiceId: "ryan",
+    stability: 0.4,
+    similarityBoost: 0.8,
+    speed: 0.9,
+    style: 0.5,
+    useSpeakerBoost: true,
+  },
+  model: {
+    provider: "openai",
+    model: "gpt-4o-mini",
+    messages: [
+      {
+        role: "system",
+        content: `You are Intervia, a friendly voice assistant that builds a personalized mock interview for the candidate.
+
+Collect these five details, one at a time:
+- role: the job role the candidate is interviewing for
+- type: technical, behavioral or mixed
+- level: the job experience level, for example entry, mid or senior
+- techstack: the technologies to cover, as a comma separated list
+- amount: how many questions the candidate wants
+
+Rules:
+- Ask one short question at a time and keep the conversation natural.
+- Only use the answers the candidate gave you. Never invent values.
+- If an answer is unclear, ask the same question again.
+- The candidate's user id is {{userid}}. Pass it unchanged as the userid argument.
+- As soon as you have all five details, call the generate_interview tool once and wait for its result. Never read the tool name or its arguments out loud.
+- If the result confirms the interview was generated, tell the candidate the interview is ready on their dashboard, wish them good luck, then use the end-call tool to hang up.
+- If the result reports a failure, tell the candidate the interview could not be created and offer to try again.`,
+      },
+    ],
+    tools: [
+      {
+        type: "function",
+        function: {
+          name: "generate_interview",
+          description:
+            "Creates the mock interview from the collected details and saves it to the candidate's dashboard.",
+          parameters: {
+            type: "object",
+            properties: {
+              role: {
+                type: "string",
+                description: "The job role the candidate is interviewing for",
+              },
+              type: {
+                type: "string",
+                description: "Interview type: technical, behavioral or mixed",
+              },
+              level: {
+                type: "string",
+                description: "The job experience level",
+              },
+              techstack: {
+                type: "string",
+                description: "Comma separated list of technologies to cover",
+              },
+              amount: {
+                type: "string",
+                description: "Number of questions the candidate asked for",
+              },
+              userid: {
+                type: "string",
+                description:
+                  "The candidate user id, exactly as given in the system prompt",
+              },
+            },
+            required: ["role", "type", "level", "techstack", "amount", "userid"],
+          },
+        },
+        server: {
+          url: `${serverUrl}/api/vapi/generate`,
+          timeoutSeconds: 60,
+        },
+        messages: [
+          {
+            type: "request-start",
+            content: "One moment while I generate your interview.",
+          },
+        ],
+      },
+      {
+        type: "endCall",
+      },
+    ],
+  },
+} as CreateAssistantDTO;
 
 export const interviewer: CreateAssistantDTO = {
   name: "Interviewer",

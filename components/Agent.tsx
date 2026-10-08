@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { vapi } from '@/lib/vapi.sdk';
-import { generator, interviewer } from '@/constants';
+import { generatorAssistant, interviewer } from '@/constants';
 import { createFeedback } from '@/lib/actions/general.action';
 
 enum CallStatus{
@@ -46,6 +46,10 @@ const Agent = ({userName, userId, type, interviewId, questions }: AgentProps) =>
             if (!error.message?.includes('Meeting ended due to ejection')) {
                 console.log('Error', error);
             }
+
+            setCallStatus((current) =>
+                current === CallStatus.CONNECTING ? CallStatus.INACTIVE : current
+            );
         };
 
         vapi.on('call-start', onCallStart);
@@ -98,17 +102,12 @@ const handleCall = async () => {
 
   try {
     if (type === "generate") {
-      await vapi.start(
-        undefined,
-        {
-          variableValues: {
-            username: userName,
-            userid: userId,
-          },
-        } as any,
-        undefined,
-        generator
-      );
+      await vapi.start(generatorAssistant, {
+        variableValues: {
+          username: userName,
+          userid: userId,
+        },
+      });
     } else {
       let formattedQuestions = "";
       if (questions) {
@@ -121,7 +120,7 @@ const handleCall = async () => {
         variableValues: {
           questions: formattedQuestions,
         },
-      } as any);
+      });
     }
   } catch (error) {
     console.error("Error starting call:", error);
